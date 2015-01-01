@@ -446,5 +446,7 @@ public class SecureSettingsValidators {
         VALIDATORS.put(Secure.MANDATORY_BIOMETRICS, new InclusiveIntegerRangeValidator(0, 1));
         VALIDATORS.put(Secure.MANDATORY_BIOMETRICS_REQUIREMENTS_SATISFIED,
                 new InclusiveIntegerRangeValidator(0, 1));
+        // Evolution X additions
+        VALIDATORS.put(Secure.QUICK_SETTINGS_TILES_VIBRATE, BOOLEAN_VALIDATOR);
     }
 }
