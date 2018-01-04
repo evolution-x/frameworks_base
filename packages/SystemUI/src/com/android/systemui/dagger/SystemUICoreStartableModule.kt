@@ -51,6 +51,7 @@ import com.android.systemui.media.taptotransfer.sender.MediaTttSenderCoordinator
 import com.android.systemui.mediaprojection.taskswitcher.MediaProjectionTaskSwitcherCoreStartable
 import com.android.systemui.settings.MultiUserUtilsModule
 import com.android.systemui.shortcut.ShortcutKeyDispatcher
+import com.android.systemui.smartpixels.SmartPixelsReceiver
 import com.android.systemui.statusbar.ImmersiveModeConfirmation
 import com.android.systemui.statusbar.gesture.GesturePointerEventListener
 import com.android.systemui.statusbar.notification.InstantAppNotifier
@@ -365,4 +366,10 @@ abstract class SystemUICoreStartableModule {
     @IntoMap
     @ClassKey(GoogleServices::class)
     abstract fun bindGoogleServices(sysui: GoogleServices): CoreStartable
+
+    /** Inject into SmartPixelsReceiver.  */
+    @Binds
+    @IntoMap
+    @ClassKey(SmartPixelsReceiver::class)
+    abstract fun bindSmartPixelsReceiver(sysui: SmartPixelsReceiver): CoreStartable
 }
