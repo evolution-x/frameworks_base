@@ -16,4 +16,7 @@
 
     <!-- Whether to force enable multi resolution configuration for camera -->
     <bool name="config_forceMultiResolution">false</bool>
+
+    <!-- Whether Pixel props is enabled -->
+    <bool name="config_enablePixelProps">true</bool>
 </resources>
