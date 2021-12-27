@@ -45,6 +45,7 @@ import com.android.systemui.navigationbar.NavigationBarView;
 import com.android.systemui.plugins.ActivityStarter.OnDismissAction;
 import com.android.systemui.qs.QSPanelController;
 import com.android.systemui.statusbar.notification.row.ExpandableNotificationRow;
+import com.android.systemui.statusbar.policy.GameSpaceManager;
 import com.android.systemui.util.Compile;
 
 import java.io.PrintWriter;
@@ -358,6 +359,8 @@ public interface CentralSurfaces extends Dumpable, LifecycleOwner, CoreStartable
     void updateDismissAllVisibility(boolean visible);
 
     void updateDismissAllButton();
+
+    GameSpaceManager getGameSpaceManager();
 
     void startActivity(android.content.Intent intent, boolean dismiss);
     void startPendingIntentDismissingKeyguard(android.app.PendingIntent intent);
