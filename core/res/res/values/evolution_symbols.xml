@@ -153,4 +153,8 @@
 
     <!-- Cycle through ringer modes -->
     <java-symbol type="string" name="volume_dialog_ringer_guidance_normal" />
+
+    <!-- Whether to cleanup fingerprints upon connection to the daemon and when
+         user switches -->
+    <java-symbol type="bool" name="config_cleanupUnusedFingerprints" />
 </resources>
