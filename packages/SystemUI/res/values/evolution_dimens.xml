@@ -38,4 +38,16 @@
     <dimen name="dock_promo_padding">48.0dip</dimen>
     <dimen name="dock_top_logo_margin">6.0dip</dimen>
     <dimen name="dock_top_logo_padding">8.0dip</dimen>
+
+    <!-- QQS Brightness slider -->
+    <dimen name="qqs_top_brightness_margin_top">4dp</dimen>
+    <dimen name="qqs_top_brightness_margin_bottom">8dp</dimen>
+    <dimen name="qqs_bottom_brightness_margin_top">8dp</dimen>
+    <dimen name="qqs_bottom_brightness_margin_bottom">4dp</dimen>
+
+    <!-- QS Brightness slider -->
+    <dimen name="qs_top_brightness_margin_top">4dp</dimen>
+    <dimen name="qs_top_brightness_margin_bottom">8dp</dimen>
+    <dimen name="qs_bottom_brightness_margin_top">8dp</dimen>
+    <dimen name="qs_bottom_brightness_margin_bottom">4dp</dimen>
 </resources>
