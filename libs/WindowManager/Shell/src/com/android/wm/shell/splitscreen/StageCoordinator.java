@@ -1888,6 +1888,7 @@ public class StageCoordinator implements SplitLayout.SplitLayoutHandler,
     }
 
     void getStageBounds(Rect outTopOrLeftBounds, Rect outBottomOrRightBounds) {
+        if (mSplitLayout == null) return;
         outTopOrLeftBounds.set(mSplitLayout.getBounds1());
         outBottomOrRightBounds.set(mSplitLayout.getBounds2());
     }
