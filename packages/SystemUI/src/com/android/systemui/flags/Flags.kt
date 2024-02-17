@@ -358,7 +358,7 @@ object Flags {
     // TODO(b/279405451): Tracking Bug
     @JvmField
     val CLIPBOARD_SHARED_TRANSITIONS =
-            unreleasedFlag("clipboard_shared_transitions", teamfood = true)
+            releasedFlag("clipboard_shared_transitions")
 
     // 1900
     @JvmField val NOTE_TASKS = releasedFlag("keycode_flag")
