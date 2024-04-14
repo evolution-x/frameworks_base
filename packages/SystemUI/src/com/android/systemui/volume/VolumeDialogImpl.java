@@ -370,7 +370,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
     private @DevicePostureController.DevicePostureInt int mDevicePosture;
     private int mOrientation;
     private final Lazy<SecureSettings> mSecureSettings;
-    private int mDialogTimeoutMillis;
+    private int mDialogTimeoutMillis = DIALOG_TIMEOUT_MILLIS;
     private final VibratorHelper mVibratorHelper;
     private final com.android.systemui.util.time.SystemClock mSystemClock;
     private final VolumeDialogInteractor mInteractor;
@@ -428,7 +428,6 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
         mVolumePanelNavigationInteractor = volumePanelNavigationInteractor;
         mVolumeNavigator = volumeNavigator;
         mSecureSettings = secureSettings;
-        mDialogTimeoutMillis = DIALOG_TIMEOUT_MILLIS;
         mInteractor = interactor;
 
         dumpManager.registerDumpable("VolumeDialogImpl", this);
@@ -463,6 +462,19 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
                     false, volumePanelOnLeftObserver);
             volumePanelOnLeftObserver.onChange(true);
         }
+
+        ContentObserver volumeTimeoutObserver = new ContentObserver(null) {
+            @Override
+            public void onChange(boolean selfChange) {
+                mDialogTimeoutMillis = mSecureSettings.get().getIntForUser(
+                        Settings.Secure.VOLUME_DIALOG_DISMISS_TIMEOUT,
+                        DIALOG_TIMEOUT_MILLIS, UserHandle.USER_CURRENT);
+            }
+        };
+        mContext.getContentResolver().registerContentObserver(
+                Settings.Secure.getUriFor(Settings.Secure.VOLUME_DIALOG_DISMISS_TIMEOUT),
+                false, volumeTimeoutObserver);
+        volumeTimeoutObserver.onChange(true);
 
         initDimens();
 
@@ -682,8 +694,6 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
         mDialogView.setAlpha(0);
         mDialogView.setLayoutDirection(
                 mVolumePanelOnLeft ? LAYOUT_DIRECTION_LTR : LAYOUT_DIRECTION_RTL);
-        mDialogTimeoutMillis = mSecureSettings.get().getInt(
-                Settings.Secure.VOLUME_DIALOG_DISMISS_TIMEOUT, DIALOG_TIMEOUT_MILLIS);
         mDialog.setCanceledOnTouchOutside(true);
         mDialog.setOnShowListener(dialog -> {
             mDialogView.getViewTreeObserver().addOnComputeInternalInsetsListener(this);
