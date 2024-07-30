@@ -68,4 +68,5 @@ class NoopDeviceEntryFaceAuthInteractor @Inject constructor() : DeviceEntryFaceA
     override fun onAccessibilityAction() {}
     override fun onWalletLaunched() = Unit
     override fun onDeviceUnfolded() {}
+    override fun setPocketState(isInPocket: Boolean) {}
 }

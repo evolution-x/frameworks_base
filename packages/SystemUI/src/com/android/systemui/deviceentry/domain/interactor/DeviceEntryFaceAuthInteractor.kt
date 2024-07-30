@@ -72,6 +72,8 @@ interface DeviceEntryFaceAuthInteractor : CoreStartable {
 
     /** Whether face auth is considered class 3 */
     fun isFaceAuthStrong(): Boolean
+    
+    fun setPocketState(isInPocket: Boolean)
 }
 
 /**
