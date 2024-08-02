@@ -23,6 +23,12 @@
     <!-- Maximum vertical offset of statusbar for burn-in protection -->
     <dimen name="status_bar_offset_max_y">4dp</dimen>
 
+    <!-- Maximum horizontal offset of navigation bar for burn-in protection -->
+    <dimen name="navigation_bar_burn_in_offset_max_x">5dp</dimen>
+
+    <!-- Maximum vertical offset of navigation bar for burn-in protection -->
+    <dimen name="navigation_bar_burn_in_offset_max_y">8dp</dimen>
+
     <!-- Ambient Music -->
     <dimen name="ambient_indication_icon_size">20.0dip</dimen>
     <dimen name="ambient_indication_note_icon_size">14.0dip</dimen>
