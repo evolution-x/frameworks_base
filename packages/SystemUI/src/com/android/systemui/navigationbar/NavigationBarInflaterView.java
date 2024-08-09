@@ -56,10 +56,15 @@ import com.android.systemui.res.R;
 import com.android.systemui.shared.system.QuickStepContract;
 import com.android.systemui.tuner.TunerService;
 
+import com.android.settingslib.applications.AppUtils;
+import com.android.settingslib.utils.WorkPolicyUtils;
+
 import lineageos.providers.LineageSettings;
 
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -358,23 +363,40 @@ public class NavigationBarInflaterView extends FrameLayout implements TunerServi
 
         switch (type) {
             case 1:  // narrow
-                enableOverlay(overlayNarrow, state);
-                enableOverlay(overlayNoSpace, false);
+                enableOverlayManagedUser(overlayNarrow, state);
+                enableOverlayManagedUser(overlayNoSpace, false);
                 return;
             case 2:  // hidden
-                enableOverlay(overlayNarrow, false);
-                enableOverlay(overlayNoSpace, state);
+                enableOverlayManagedUser(overlayNarrow, false);
+                enableOverlayManagedUser(overlayNoSpace, state);
                 return;
         }
 
-        enableOverlay(overlayNarrow, false);
-        enableOverlay(overlayNoSpace, false);
+        enableOverlayManagedUser(overlayNarrow, false);
+        enableOverlayManagedUser(overlayNoSpace, false);
     }
 
-    private void enableOverlay(String overlay, boolean state) {
+    private void enableOverlayManagedUser(String overlay, boolean state) {
+        final List<Integer> allId = new ArrayList<Integer>();
+        final int userId = ActivityManager.getCurrentUser();
+        final WorkPolicyUtils wpu = new WorkPolicyUtils(mContext);
+        final int workId = wpu.getManagedProfileUserId();
+        final int cloneId = AppUtils.getCloneUserId(mContext);
+        allId.add(userId);
+        if (workId > -1) {
+            allId.add(workId);
+        }
+        if (cloneId > -1) {
+            allId.add(cloneId);
+        }
+        for (Integer uid : allId) {
+            enableOverlay(overlay, state, uid);
+        }
+    }
+
+    private void enableOverlay(String overlay, boolean state, int userId) {
         final IOverlayManager iom = IOverlayManager.Stub.asInterface(
                 ServiceManager.getService(Context.OVERLAY_SERVICE));
-        final int userId = ActivityManager.getCurrentUser();
         try {
             final OverlayInfo info = iom.getOverlayInfo(overlay, userId);
             if (info == null || info.isEnabled() == state) return;
