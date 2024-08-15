@@ -24,6 +24,7 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.util.SparseArray;
 import android.view.SurfaceControl;
+import android.window.WindowContainerTransaction;
 
 import com.android.internal.protolog.common.ProtoLog;
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -110,6 +111,7 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
                 }
             });
         }
+        onTaskEnteredFreeform(taskInfo);
     }
 
     @Override
@@ -170,6 +172,18 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
                 repository.addOrMoveFreeformTaskToTop(taskInfo.displayId, taskInfo.taskId);
                 repository.unminimizeTask(taskInfo.displayId, taskInfo.taskId);
             });
+        }
+    }
+
+    void onTaskEnteredFreeform(RunningTaskInfo taskInfo) {
+        if (taskInfo == null || taskInfo.getWindowingMode() != WINDOWING_MODE_FREEFORM) {
+            return;
+        }
+        if (!taskInfo.configuration.windowConfiguration.isAlwaysOnTop()) {
+            // A freeform task appeared that was not started by the Shell, make it always-on-top.
+            final WindowContainerTransaction wct = new WindowContainerTransaction();
+            wct.setAlwaysOnTop(taskInfo.token, true);
+            mShellTaskOrganizer.applyTransaction(wct);
         }
     }
 
