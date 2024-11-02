@@ -358,4 +358,10 @@ public interface CentralSurfaces extends Dumpable, LifecycleOwner, CoreStartable
     void updateDismissAllVisibility(boolean visible);
 
     void updateDismissAllButton();
+
+    void startActivity(android.content.Intent intent, boolean dismiss);
+    void startPendingIntentDismissingKeyguard(android.app.PendingIntent intent);
+    com.android.systemui.shade.ShadeViewController getNotificationPanelViewController();
+    void wakeUpDeviceifDozing();
+    com.android.systemui.shade.NotificationShadeWindowView getNotificationShadeWindowView();
 }

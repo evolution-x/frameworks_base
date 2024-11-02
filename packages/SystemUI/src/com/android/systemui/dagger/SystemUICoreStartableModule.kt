@@ -66,6 +66,7 @@ import com.android.systemui.util.NotificationChannels
 import com.android.systemui.util.StartBinderLoggerModule
 import com.android.systemui.wallpapers.dagger.WallpaperModule
 import com.android.systemui.wmshell.WMShell
+import com.android.systemui.GoogleServices
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.ClassKey
@@ -358,4 +359,10 @@ abstract class SystemUICoreStartableModule {
     @IntoMap
     @ClassKey(BatteryControllerStartable::class)
     abstract fun bindsBatteryControllerStartable(impl: BatteryControllerStartable): CoreStartable
+
+    /** Inject into GoogleServices.  */
+    @Binds
+    @IntoMap
+    @ClassKey(GoogleServices::class)
+    abstract fun bindGoogleServices(sysui: GoogleServices): CoreStartable
 }

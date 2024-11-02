@@ -184,6 +184,11 @@
     <!-- Assist -->
     <uses-permission android:name="android.permission.ACCESS_VOICE_INTERACTION_SERVICE" />
 
+    <!-- Ambient Music -->
+    <permission android:name="com.google.android.ambientindication.permission.AMBIENT_INDICATION" 
+        android:protectionLevel="signature|system"/>
+    <uses-permission android:name="com.google.android.ambientindication.permission.AMBIENT_INDICATION"/>
+
     <!-- Doze mode temp whitelisting for notification dispatching. -->
     <uses-permission android:name="android.permission.CHANGE_DEVICE_IDLE_TEMP_WHITELIST" />
 
