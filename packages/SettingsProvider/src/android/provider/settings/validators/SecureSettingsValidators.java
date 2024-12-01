@@ -448,5 +448,7 @@ public class SecureSettingsValidators {
                 new InclusiveIntegerRangeValidator(0, 1));
         // Evolution X additions
         VALIDATORS.put(Secure.QUICK_SETTINGS_TILES_VIBRATE, BOOLEAN_VALIDATOR);
+        VALIDATORS.put(Secure.CLIPBOARD_AUTO_CLEAR_ENABLED, BOOLEAN_VALIDATOR);
+        VALIDATORS.put(Secure.CLIPBOARD_AUTO_CLEAR_TIMEOUT, NONE_NEGATIVE_LONG_VALIDATOR);
     }
 }
