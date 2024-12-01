@@ -27,4 +27,7 @@
     <color name="peek_title_text_color_dark">#ffffffff</color>
     <color name="peek_summary_text_color_light">#66000000</color>
     <color name="peek_summary_text_color_dark">#89ffffff</color>
+
+    <!-- Sliding QS Tile -->
+    <color name="tile_percentage_color">@*android:color/system_accent1_200</color>
 </resources>
