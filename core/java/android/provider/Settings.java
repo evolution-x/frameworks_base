@@ -12734,6 +12734,18 @@ public final class Settings {
         public static final String PULSE_ON_NEW_TRACKS = "pulse_on_new_tracks";
 
         /**
+         * Whether to enable clipboard auto clear
+         * @hide
+         */
+        public static final String CLIPBOARD_AUTO_CLEAR_ENABLED = "clipboard_auto_clear_enabled";
+
+        /**
+         * Timeout length for clipboard auto clear
+         * @hide
+         */
+        public static final String CLIPBOARD_AUTO_CLEAR_TIMEOUT = "clipboard_auto_clear_timeout";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
