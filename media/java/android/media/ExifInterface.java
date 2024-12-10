@@ -2038,7 +2038,7 @@ public class ExifInterface {
             // ExifInterface.
             mIsSupportedFile = false;
             if (DEBUG) {
-                Log.w(TAG, "Invalid image: ExifInterface got an unsupported image format file"
+                Log.d(TAG, "Invalid image: ExifInterface got an unsupported image format file"
                         + "(ExifInterface supports JPEG and some RAW image formats only) "
                         + "or a corrupted JPEG file to ExifInterface.", e);
             }
