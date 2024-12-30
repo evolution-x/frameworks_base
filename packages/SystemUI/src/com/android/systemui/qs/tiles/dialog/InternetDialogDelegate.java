@@ -153,6 +153,7 @@ public class InternetDialogDelegate implements
     private TextView mHotspotTitleText;
     private TextView mHotspotSummaryText;
     private Switch mHotspotToggle;
+    private View mHotspotToggleDivider;
     private Switch mWiFiToggle;
     private View mWifiConnectedSpace;
     private Button mDoneButton;
@@ -313,6 +314,7 @@ public class InternetDialogDelegate implements
         mHotspotIcon = mDialogView.requireViewById(R.id.hotspot_icon);
         mHotspotTitleText = mDialogView.requireViewById(R.id.hotspot_title);
         mHotspotSummaryText = mDialogView.requireViewById(R.id.hotspot_summary);
+        mHotspotToggleDivider = mDialogView.requireViewById(R.id.hotspot_toggle_divider);
         mHotspotToggle = mDialogView.requireViewById(R.id.hotspot_toggle);
         mWiFiToggle = mDialogView.requireViewById(R.id.wifi_toggle);
         mWifiConnectedSpace = mDialogView.requireViewById(R.id.wifi_connected_space);
@@ -682,10 +684,13 @@ public class InternetDialogDelegate implements
     }
 
     private void setHotspotLayout(InternetContent internetContent) {
-        if (!internetContent.mShouldUpdateHotspot) {
+        if (!internetContent.mShouldUpdateHotspot && mDialog == null) {
             return;
         }
+        setHotspotLayout(mDialog, internetContent);
+    }
 
+    private void setHotspotLayout(SystemUIDialog dialog, InternetContent internetContent) {
         if (!mInternetDialogController.isHotspotAvailable()) {
             mHotspotLayout.setVisibility(View.GONE);
             return;
@@ -695,8 +700,11 @@ public class InternetDialogDelegate implements
         mHotspotSummaryText.setText(getHotspotSummary());
 
         boolean enabled = mInternetDialogController.isHotspotEnabled();
-        mHotspotIcon.setImageResource(enabled ? R.drawable.ic_internet_hotspot
-                : R.drawable.ic_internet_hotspot_disabled);
+        // Always use disconnected_network_primary_color
+        // to prevent it to changing to darker color (materialColorOnPrimaryContainer)
+        mHotspotToggleDivider.setBackgroundColor(dialog.getContext().getColor(
+            R.color.disconnected_network_primary_color));
+        mHotspotIcon.setImageDrawable(getHotspotDrawable(enabled));
         mHotspotToggle.setChecked(enabled);
 
         boolean dataSaver = mInternetDialogController.isDataSaverEnabled();
@@ -849,6 +857,10 @@ public class InternetDialogDelegate implements
 
     private Drawable getSignalStrengthDrawable(int subId) {
         return mInternetDialogController.getSignalStrengthDrawable(subId);
+    }
+
+    private Drawable getHotspotDrawable(boolean enabled) {
+        return mInternetDialogController.getHotspotDrawable(enabled);
     }
 
     CharSequence getMobileNetworkTitle(int subId) {

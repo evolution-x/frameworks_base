@@ -569,6 +569,17 @@ public class InternetDialogController implements AccessPointController.AccessPoi
         return drawable;
     }
 
+    Drawable getHotspotDrawable(boolean enabled) {
+        Drawable drawable = mContext.getDrawable(
+                enabled ? R.drawable.ic_internet_hotspot
+                    : R.drawable.ic_internet_hotspot_disabled);
+
+        int tintColor = Utils.getColorAttrDefaultColor(mContext,
+                android.R.attr.textColorTertiary);
+        drawable.setTint(tintColor);
+        return drawable;
+    }
+
     /**
      * To get the signal bar icon with level.
      *
