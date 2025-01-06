@@ -64,7 +64,6 @@ public final class PixelPropsUtils {
     private static final String SPOOF_PIXEL_PROPS = "persist.sys.pphooks.enable";
 
     private static final String TAG = PixelPropsUtils.class.getSimpleName();
-    private static final String DEVICE = "ro.evolution.device";
     private static final boolean DEBUG = SystemProperties.getBoolean("persist.sys.pihooks.debug", false);
 
     private static final String sDeviceModel =
@@ -117,30 +116,6 @@ public final class PixelPropsUtils {
             "com.google.android.MTCL83",
             "com.google.android.UltraCVM",
             "com.google.android.apps.cameralite"
-    };
-
-    // Codenames for currently supported Pixels by Google
-    private static final String[] pixelCodenames = {
-            "rango", // Pixel 10 Pro Fold
-            "mustang", // Pixel 10 Pro XL
-            "blazer", // Pixel 10 Pro
-            "frankel", // Pixel 10
-            "komodo",
-            "caiman",
-            "tokay",
-            "comet",
-            "akita",
-            "husky",
-            "shiba",
-            "felix",
-            "tangorpro",
-            "lynx",
-            "cheetah",
-            "panther",
-            "bluejay",
-            "oriole",
-            "raven",
-            "barbet"
     };
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
@@ -310,7 +285,7 @@ public final class PixelPropsUtils {
             }
         } else if (Arrays.asList(packagesToChangeRecentPixel).contains(packageName) && !sIsGms) {
 
-            boolean isPixelDevice = Arrays.asList(pixelCodenames).contains(SystemProperties.get(DEVICE));
+            boolean isPixelDevice = SystemProperties.get("ro.product.model").matches("Pixel [6-9][a-zA-Z ]*");
             if (isPixelDevice || !sEnablePixelProps || !SystemProperties.getBoolean(SPOOF_PIXEL_PROPS, true)) {
                 return;
             } else if (SystemProperties.getBoolean(SPOOF_PIXEL_PROPS, true)) {
