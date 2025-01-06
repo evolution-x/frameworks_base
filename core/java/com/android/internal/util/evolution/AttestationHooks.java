@@ -44,6 +44,7 @@ public final class AttestationHooks {
     private static final String PACKAGE_GPHOTOS = "com.google.android.apps.photos";
     private static final String PACKAGE_VENDING = "com.android.vending";
     private static final String PACKAGE_SNAPCHAT = "com.snapchat.android";
+    private static final String SPOOF_PIXEL_GPHOTOS = "persist.sys.gphooks.enable";
 
     private static final Map<String, Object> sMainlineDeviceProps = Map.of(
         "BRAND", "google",
@@ -63,30 +64,6 @@ public final class AttestationHooks {
         "FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys"
     );
 
-    // Codenames for currently supported Pixels by Google
-    private static final String[] pixelCodenames = {
-            "rango", // Pixel 10 Pro Fold
-            "mustang", // Pixel 10 Pro XL
-            "blazer", // Pixel 10 Pro
-            "frankel", // Pixel 10
-            "komodo",
-            "caiman",
-            "tokay",
-            "comet",
-            "akita",
-            "husky",
-            "shiba",
-            "felix",
-            "tangorpro",
-            "lynx",
-            "cheetah",
-            "panther",
-            "bluejay",
-            "oriole",
-            "raven",
-            "barbet"
-    };
-
     private static volatile String sProcessName;
 
     private AttestationHooks() { }
@@ -101,11 +78,15 @@ public final class AttestationHooks {
 
         sProcessName = processName;
 
+        boolean isPixelDevice = SystemProperties.get("ro.product.model").matches("Pixel [6-9][a-zA-Z ]*");
+        boolean isGPhotosSpoofEnabled = SystemProperties.getBoolean(SPOOF_PIXEL_GPHOTOS, false);
         if (packageName.equals(PACKAGE_GPHOTOS)) {
-            if (SystemProperties.getBoolean("persist.sys.gphooks.enable", false)) {
+            if (isGPhotosSpoofEnabled) {
                 sPixelXLProps.forEach(AttestationHooks::setPropValue);
             } else {
-                sMainlineDeviceProps.forEach(AttestationHooks::setPropValue);
+                if (!isPixelDevice) {
+                    sMainlineDeviceProps.forEach(AttestationHooks::setPropValue);
+                }
             }
         }
 
