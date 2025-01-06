@@ -71,4 +71,7 @@
 
     <!-- Whether to play turbulence noise after clicking the play button -->
     <bool name="config_turbulenceNoise">true</bool>
+
+    <!-- Whether to show ongoing progress bar chip in statusbar -->
+    <bool name="config_enableOngoingProgressBarChip">true</bool>
 </resources>
