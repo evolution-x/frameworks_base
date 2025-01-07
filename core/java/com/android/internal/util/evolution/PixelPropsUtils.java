@@ -76,6 +76,7 @@ public final class PixelPropsUtils {
     private static final Map<String, Object> propsToChangeGeneric;
     private static final Map<String, Object> propsToChangeRecentPixel;
     private static final Map<String, Object> propsToChangePixelTablet;
+    private static final Map<String, Object> propsToChangePixel5a;
     private static final Map<String, ArrayList<String>> propsToKeep;
 
     // Packages to Spoof as the most recent Pixel device
@@ -148,6 +149,15 @@ public final class PixelPropsUtils {
         propsToChangePixelTablet.put("MODEL", "Pixel Tablet");
         propsToChangePixelTablet.put("ID", "AP4A.241205.013");
         propsToChangePixelTablet.put("FINGERPRINT", "google/tangorpro/tangorpro:15/AP4A.241205.013/12621605:user/release-keys");
+        propsToChangePixel5a = new HashMap<>();
+        propsToChangePixel5a.put("BRAND", "google");
+        propsToChangePixel5a.put("MANUFACTURER", "Google");
+        propsToChangePixel5a.put("DEVICE", "barbet");
+        propsToChangePixel5a.put("PRODUCT", "barbet");
+        propsToChangePixel5a.put("HARDWARE", "barbet");
+        propsToChangePixel5a.put("MODEL", "Pixel 5a");
+        propsToChangePixel5a.put("ID", "AP2A.240805.005.S4");
+        propsToChangePixel5a.put("FINGERPRINT", "google/barbet/barbet:14/AP2A.240805.005.S4/12281092:user/release-keys");
     }
 
     public static String getBuildID(String fingerprint) {
@@ -283,11 +293,23 @@ public final class PixelPropsUtils {
                     spoofBuildGms(context);
                 }
             }
-        } else if (Arrays.asList(packagesToChangeRecentPixel).contains(packageName) && !sIsGms) {
+        } else if (Arrays.asList(packagesToChangeRecentPixel).contains(packageName)) {
 
-            boolean isPixelDevice = SystemProperties.get("ro.product.model").matches("Pixel [6-9][a-zA-Z ]*");
-            if (isPixelDevice || !sEnablePixelProps || !SystemProperties.getBoolean(SPOOF_PIXEL_PROPS, true)) {
+            boolean isTensorDevice = SystemProperties.get("ro.product.model").matches("Pixel [6-9][a-zA-Z ]*");
+            if (isTensorDevice || !sEnablePixelProps || !SystemProperties.getBoolean(SPOOF_PIXEL_PROPS, true)) {
                 return;
+            } else if (packageName.equals(PACKAGE_GMS) && !sIsGms) {
+                setPropValue("TIME", System.currentTimeMillis());
+                if (!isTensorDevice) {
+                    if (processName.toLowerCase().contains("gapps")
+                            || processName.toLowerCase().contains("gservice")
+                            || processName.toLowerCase().contains("learning")
+                            || processName.toLowerCase().contains("persistent")
+                            || processName.toLowerCase().contains("search")
+                            || processName.toLowerCase().contains("update")) {
+                        propsToChange.putAll(propsToChangePixel5a);
+                    }
+                }
             } else if (SystemProperties.getBoolean(SPOOF_PIXEL_PROPS, true)) {
                 if (sIsTablet) {
                     propsToChange.putAll(propsToChangePixelTablet);
@@ -318,7 +340,7 @@ public final class PixelPropsUtils {
         }
         // Show correct model name on gms services
         if (packageName.toLowerCase().contains("com.google.android.gms")) {
-            if (processName.toLowerCase().contains("ui")) {
+            if (processName != null && processName.toLowerCase().contains("ui")) {
                 setPropValue("MODEL", sDeviceModel);
                 return;
             }
