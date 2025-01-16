@@ -16,7 +16,9 @@
 
 package com.android.systemui.screenshot;
 
-import static com.android.systemui.screenshot.LegacyScreenshotController.SCREENSHOT_URI_ID;
+import static com.android.systemui.screenshot.SmartActionsReceiver.EXTRA_ACTION_TYPE;
+import static com.android.systemui.screenshot.SmartActionsReceiver.EXTRA_ID;
+import static com.android.systemui.screenshot.SmartActionsReceiver.EXTRA_SMART_ACTIONS_ENABLED;
 
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -39,15 +41,12 @@ import javax.inject.Inject;
 
 public class LensScreenshotReceiver extends BroadcastReceiver {
 
+    protected static final String EXTRA_LENS_SCREENSHOT_URI_ID = "lens_screenshot_uri_id";
     private static final String GSA_PACKAGE = "com.google.android.googlequicksearchbox";
     private static final String LENS_ACTIVITY = "com.google.android.apps.lens.MainActivity";
     private static final String LENS_SHARE_ACTIVITY = "com.google.android.apps.search.lens.LensShareEntryPointActivity";
     private static final String LENS_URI = "google://lens";
-    private static final String EXTRA_SCREENSHOT_USER_HANDLE = "screenshot-userhandle";
-
-    public static final String EXTRA_ACTION_TYPE = "android:screenshot_action_type";
-    public static final String EXTRA_ID = "android:screenshot_id";
-    public static final String EXTRA_SMART_ACTIONS_ENABLED = "android:smart_actions_enabled";
+    protected static final String EXTRA_SCREENSHOT_USER_HANDLE = "lens_screenshot_userhandle";
 
     private final ActionIntentExecutor mActionExecutor;
     private final Executor mBackgroundExecutor;
@@ -70,7 +69,7 @@ public class LensScreenshotReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (!intent.hasExtra(SCREENSHOT_URI_ID)) {
+        if (!intent.hasExtra(EXTRA_LENS_SCREENSHOT_URI_ID)) {
             return;
         }
 
@@ -80,7 +79,7 @@ public class LensScreenshotReceiver extends BroadcastReceiver {
             mScreenshotUserHandle = Process.myUserHandle();
         }
 
-        final Uri uri = Uri.parse(intent.getStringExtra(SCREENSHOT_URI_ID));
+        final Uri uri = Uri.parse(intent.getStringExtra(EXTRA_LENS_SCREENSHOT_URI_ID));
         mBackgroundExecutor.execute(() -> {
             // action to execute goes here
             ClipData clipdata = new ClipData(new ClipDescription("content",
