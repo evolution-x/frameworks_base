@@ -47,9 +47,8 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.android.internal.R;
-import com.android.server.SystemService;
 
-public class PocketModeService extends SystemService {
+public class PocketModeService {
 
     private static final float PROXIMITY_THRESHOLD = 1.0f;
     private static final float LIGHT_THRESHOLD = 2.0f;
@@ -94,7 +93,7 @@ public class PocketModeService extends SystemService {
     private static final String POCKET_MODE_ENABLED = "pocket_mode_enabled";
     private final Handler mHandler = new Handler();
     
-    private static PocketModeService instance;
+    private static PocketModeService instance = null;
 
     private KeyguardManager mKeyguardManager;
     private SensorManager mSensorManager;
@@ -105,14 +104,12 @@ public class PocketModeService extends SystemService {
     boolean mIsInPocket;
     boolean mIsOverlayUserUnlocked;
     private boolean mShowing = false;
+    private boolean mSystemReady = false;
 
     private static final int POCKET_MODE_SENSOR_DELAY = 400000;
     
     private VibrationEffect mDoubleClickEffect;
     private Vibrator mVibrator;
-    
-    private boolean mPocketModeEnabled;
-    private boolean mAlwaysOnPocketModeEnabled;
     
     private boolean mDozing = false;
     
@@ -126,10 +123,24 @@ public class PocketModeService extends SystemService {
     };
 
     private PocketModeService(Context context) {
-        super(context);
         mContext = context;
-        mPocketModeEnabled = isPocketModeEnabled();
-        mAlwaysOnPocketModeEnabled = isAlwaysOnPocketMode();
+        mVibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        mKeyguardManager = (KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE);
+        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+        mPowerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+        mTelecomManager = (TelecomManager) mContext.getSystemService(Context.TELECOM_SERVICE);
+        if (mSensorManager != null) {
+            mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            mLightSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+            mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        }
+        mDoubleClickEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK);
+        createOverlayView(mContext);
+        mSettingsObserver = new SettingsObserver(null);
+        mSettingsObserver.observe();
+        IntentFilter filter = new IntentFilter("org.rising.server.action.AOD_STATE_CHANGED");
+        mContext.registerReceiver(mAodStateReceiver, filter, Context.RECEIVER_EXPORTED);
     }
     
     public static synchronized PocketModeService getInstance(Context context) {
@@ -143,7 +154,7 @@ public class PocketModeService extends SystemService {
         Intent intent = new Intent(ACTION_POCKET_STATE_CHANGED);
         intent.setPackage("com.android.systemui");
         intent.putExtra(EXTRA_IN_POCKET, inPocket);
-        mContext.sendBroadcast(intent);
+        mContext.sendBroadcastAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
     }
     
     private void onDozingChanged() {
@@ -181,13 +192,13 @@ public class PocketModeService extends SystemService {
     }
     
     public void onInteractiveChanged(boolean show) {
-        if (!mPocketModeEnabled && mShowing) {
+        if (!isPocketModeEnabled() && mShowing) {
             hideOverlay();
             return;
         }
         mIsOverlayUserUnlocked = false;
-        if ((show && mAlwaysOnPocketModeEnabled || mIsInPocket) 
-            && !mIsOverlayUserUnlocked && mPocketModeEnabled) {
+        if ((show && isAlwaysOnPocketMode() || mIsInPocket) 
+            && !mIsOverlayUserUnlocked && isPocketModeEnabled()) {
             showOverlay();
         } else {
             hideOverlay();
@@ -201,7 +212,7 @@ public class PocketModeService extends SystemService {
     }
 
     private void showOverlay() {
-        if (mDozing) return;
+        if (!mSystemReady || mDozing) return;
         final Runnable show = new Runnable() {
             @Override
             public void run() {
@@ -220,6 +231,7 @@ public class PocketModeService extends SystemService {
     }
 
     private void hideOverlay() {
+        if (!mSystemReady) return;
         final Runnable hide = new Runnable() {
             @Override
             public void run() {
@@ -303,7 +315,7 @@ public class PocketModeService extends SystemService {
     }
 
     public void detect(Float prox, Float light, float[] g, Integer inc) {
-        if (mAlwaysOnPocketModeEnabled) return;
+        if (isAlwaysOnPocketMode() || !mSystemReady) return;
         boolean isProxInPocket = mProximitySensor != null && prox != -1f && prox < PROXIMITY_THRESHOLD;
         boolean isLightInPocket = mLightSensor != null && light != -1f && light < LIGHT_THRESHOLD;
         boolean isGravityInPocket = mAccelerometerSensor != null && g != null && g.length == 3 && g[1] < GRAVITY_THRESHOLD;
@@ -323,27 +335,6 @@ public class PocketModeService extends SystemService {
         }
     }
 
-    @Override
-    public void onStart() {
-        mVibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-        mKeyguardManager = (KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE);
-        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
-        mPowerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-        mTelecomManager = (TelecomManager) mContext.getSystemService(Context.TELECOM_SERVICE);
-        if (mSensorManager != null) {
-            mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            mLightSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-            mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        }
-        mDoubleClickEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK);
-        createOverlayView(mContext);
-        mSettingsObserver = new SettingsObserver(null);
-        mSettingsObserver.observe();
-        IntentFilter filter = new IntentFilter("org.rising.server.action.AOD_STATE_CHANGED");
-        mContext.registerReceiver(mAodStateReceiver, filter, Context.RECEIVER_EXPORTED);
-    }
-
     class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -356,9 +347,7 @@ public class PocketModeService extends SystemService {
             updatePocketModeSettings();
         }
         void updatePocketModeSettings() {
-            mPocketModeEnabled = isPocketModeEnabled();
-            mAlwaysOnPocketModeEnabled = isAlwaysOnPocketMode();
-             if (mPocketModeEnabled) {
+             if (isPocketModeEnabled()) {
                 registerListeners();
              } else {
                 unregisterListeners();
@@ -438,10 +427,14 @@ public class PocketModeService extends SystemService {
     }
     
     public boolean isOverlayShowing() {
-        return mShowing;
+        return isPocketModeEnabled() && mShowing;
     }
     
     public boolean isDeviceInPocket() {
         return mIsInPocket && !mIsOverlayUserUnlocked;
+    }
+    
+    public void setSystemReady() {
+        this.mSystemReady = true;
     }
 }

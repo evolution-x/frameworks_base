@@ -274,6 +274,8 @@ import lineageos.providers.LineageSettings;
 import org.lineageos.internal.buttons.LineageButtons;
 import org.lineageos.internal.util.ActionUtils;
 
+import org.rising.server.PocketModeService;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -809,8 +811,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private final List<DeviceKeyHandler> mDeviceKeyHandlers = new ArrayList<>();
 
     private LineageButtons mLineageButtons;
-    
-    private PocketModeService mPocketModeService;
 
     private final boolean mVisibleBackgroundUsersEnabled = isVisibleBackgroundUsersEnabled();
 
@@ -1683,11 +1683,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 break;
             case LONG_PRESS_POWER_HIDE_POCKET_LOCK:
                 mPowerKeyHandled = true;
-                if (mPocketModeService != null) {
-                    mPocketModeService.disablePocketLock();
-                }
+                getPocketModeInstance().disablePocketLock();
                 break;
         }
+    }
+    
+    private PocketModeService getPocketModeInstance() {
+        return PocketModeService.getInstance(mContext);
     }
 
     private void powerVeryLongPress() {
@@ -1772,7 +1774,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return LONG_PRESS_POWER_TORCH;
         }
         
-        if (mPocketModeService.isOverlayShowing()) {
+        if (getPocketModeInstance().isOverlayShowing()) {
             return LONG_PRESS_POWER_HIDE_POCKET_LOCK;
         }
 
@@ -2064,7 +2066,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     private void handleScreenShot(@WindowManager.ScreenshotSource int source,
             @WindowManager.ScreenshotType int type) {
-        if (!mPocketModeService.isOverlayShowing()) {
+        if (!getPocketModeInstance().isOverlayShowing()) {
             mDefaultDisplayPolicy.takeScreenshot(type, source);
         }
     }
@@ -5643,6 +5645,22 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         final boolean interactive = (policyFlags & FLAG_INTERACTIVE) != 0;
 
+        if (getPocketModeInstance().isOverlayShowing()) {
+            if (keyCode != KeyEvent.KEYCODE_POWER &&
+                keyCode != KeyEvent.KEYCODE_VOLUME_UP &&
+                keyCode != KeyEvent.KEYCODE_VOLUME_DOWN &&
+                keyCode != KeyEvent.KEYCODE_MEDIA_PLAY &&
+                keyCode != KeyEvent.KEYCODE_MEDIA_PAUSE &&
+                keyCode != KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE &&
+                keyCode != KeyEvent.KEYCODE_HEADSETHOOK &&
+                keyCode != KeyEvent.KEYCODE_MEDIA_STOP &&
+                keyCode != KeyEvent.KEYCODE_MEDIA_NEXT &&
+                keyCode != KeyEvent.KEYCODE_MEDIA_PREVIOUS &&
+                keyCode != KeyEvent.KEYCODE_VOLUME_MUTE) {
+                return 0;
+            }
+        }
+
         final boolean canceled = event.isCanceled();
         final int displayId = event.getDisplayId();
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
@@ -6704,9 +6722,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (mKeyguardDelegate != null) {
             mKeyguardDelegate.onStartedGoingToSleep(pmSleepReason);
         }
-        if (mPocketModeService != null) {
-            mPocketModeService.onInteractiveChanged(false);
-        }
+        getPocketModeInstance().onInteractiveChanged(false);
     }
 
     // Called on the PowerManager's Notifier thread.
@@ -6779,9 +6795,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mKeyguardDelegate.onStartedWakingUp(pmWakeReason, mCameraGestureTriggered);
         }
         
-        if (mPocketModeService != null) {
-            mPocketModeService.onInteractiveChanged(true);
-        }
+        getPocketModeInstance().setSystemReady();
+        
+        getPocketModeInstance().onInteractiveChanged(true);
 
         mCameraGestureTriggered = false;
     }
@@ -7264,8 +7280,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         mAutofillManagerInternal = LocalServices.getService(AutofillManagerInternal.class);
         mGestureLauncherService = LocalServices.getService(GestureLauncherService.class);
-        mPocketModeService = PocketModeService.getInstance(mContext);
-        mPocketModeService.onStart();
     }
 
     /** {@inheritDoc} */
