@@ -55,11 +55,9 @@ public interface ExternalInterfaceBinder {
             String log, Consumer<T> callback, boolean blocking) {
         if (controllerInstance == null) return;
 
-        final int callingUid = Binder.getCallingUid();
-        final String callingPackage = controllerInstance.getContext().getPackageManager().getNameForUid(callingUid);
-
         final RemoteCallable<T> controller = controllerInstance;
-        if (callingPackage != null && !callingPackage.toLowerCase().contains("google")) {
+        if (!com.android.internal.util.evolution.PixelPropsUtils.shouldBypassManageActivityTaskPermission(
+                controllerInstance.getContext())) {
             controllerInstance.getContext().enforceCallingPermission(
                     Manifest.permission.MANAGE_ACTIVITY_TASKS, log);
         }
