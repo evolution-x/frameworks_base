@@ -60,6 +60,8 @@ import java.util.regex.Matcher;
  */
 public final class PixelPropsUtils {
 
+    private static final String DISGUISE_PROPS_FOR_MUSIC_APP =
+            "persist.sys.disguise_props_for_music_app";
     private static final String PACKAGE_ARCORE = "com.google.ar.core";
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
@@ -83,6 +85,7 @@ public final class PixelPropsUtils {
     private static final Map<String, Object> propsToChangeRecentPixel;
     private static final Map<String, Object> propsToChangePixelTablet;
     private static final Map<String, Object> propsToChangePixel5a;
+    private static final Map<String, Object> propsToChangeMeizu;
     private static final Map<String, ArrayList<String>> propsToKeep;
 
     private static Set<String> mLauncherPkgs;
@@ -128,6 +131,17 @@ public final class PixelPropsUtils {
             "com.google.android.apps.cameralite"
     };
 
+    private static final String[] packagesToChangeMeizu = {
+        "cmccwm.mobilemusic",
+        "cn.kuwo.player",
+        "com.hihonor.cloudmusic",
+        "com.kugou.android.lite",
+        "com.kugou.android",
+        "com.meizu.media.music",
+        "com.netease.cloudmusic",
+        "com.tencent.qqmusic",
+    };
+
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
@@ -167,6 +181,13 @@ public final class PixelPropsUtils {
         propsToChangePixel5a.put("MODEL", "Pixel 5a");
         propsToChangePixel5a.put("ID", "AP2A.240805.005.S4");
         propsToChangePixel5a.put("FINGERPRINT", "google/barbet/barbet:14/AP2A.240805.005.S4/12281092:user/release-keys");
+        propsToChangeMeizu = new HashMap<>();
+        propsToChangeMeizu.put("BRAND", "meizu");
+        propsToChangeMeizu.put("MANUFACTURER", "Meizu");
+        propsToChangeMeizu.put("DEVICE", "m1892");
+        propsToChangeMeizu.put("DISPLAY", "Flyme");
+        propsToChangeMeizu.put("PRODUCT", "meizu_16thPlus_CN");
+        propsToChangeMeizu.put("MODEL", "meizu 16th Plus");
     }
 
     public static String getBuildID(String fingerprint) {
@@ -325,6 +346,10 @@ public final class PixelPropsUtils {
                 } else {
                     propsToChange.putAll(propsToChangeRecentPixel);
                 }
+            }
+        } else if (Arrays.asList(packagesToChangeMeizu).contains(packageName)) {
+            if (SystemProperties.getBoolean(DISGUISE_PROPS_FOR_MUSIC_APP, false)) {
+                propsToChange.putAll(propsToChangeMeizu);
             }
         }
         dlog("Defining props for: " + packageName);
