@@ -38,7 +38,6 @@ import com.android.systemui.animation.DialogTransitionAnimator
 import com.android.systemui.animation.Expandable
 import com.android.systemui.monet.ColorScheme
 import com.android.systemui.media.dialog.MediaOutputDialogManager
-import com.android.systemui.lockscreen.ActivityLauncherUtils
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
@@ -53,7 +52,6 @@ class MediaSessionManagerHelper private constructor(private val context: Context
 
     private var lastSavedPackageName: String? = null
     private val mediaSessionManager: MediaSessionManager = context.getSystemService(MediaSessionManager::class.java)!!
-    private val activityLauncherUtils: ActivityLauncherUtils = ActivityLauncherUtils(context)
     private var activeController: MediaController? = null
     private val listeners: MutableSet<MediaMetadataListener> = mutableSetOf()
     private var mediaMetadata: MediaMetadata? = null
@@ -313,12 +311,6 @@ class MediaSessionManagerHelper private constructor(private val context: Context
                 true,
                 Expandable.fromView(view).dialogController()
             )
-    }
-
-    fun launchMediaApp() {
-        lastSavedPackageName?.takeIf { it.isNotEmpty() }?.let {
-            activityLauncherUtils.launchMediaPlayerApp(it)
-        }
     }
     
     private fun Expandable.dialogController(): DialogTransitionAnimator.Controller? {
